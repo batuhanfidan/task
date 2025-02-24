@@ -22,7 +22,7 @@ export default function Home() {
     groupSize: 40,
     vehicle: [],
     features: [],
-    location: ""
+    location: [],
   });
   const [activeFilterType, setActiveFilterType] = useState<'tours' | 'rents' | 'all'>('all');
 

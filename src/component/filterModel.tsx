@@ -15,8 +15,8 @@ export interface ToursFilterState {
 interface FilterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onApplyFilters: (filters: ToursFilterState, filterType: 'tours' | 'rents' | 'ticket' | 'transfer') => void;
-  activeFilterType: 'tours' | 'rents' | 'ticket' | 'transfer';
+  onApplyFilters: (filters: ToursFilterState, filterType: 'tours' | 'rents' ) => void;
+  activeFilterType: 'tours' | 'rents' ;
   toursData?: any[];
   rentsData?: any[];
 }
@@ -35,7 +35,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
   toursData = [],
   rentsData = []
 }) => {
-  const [filterType, setFilterType] = useState<'tours' | 'rents' | 'ticket' | 'transfer'>(activeFilterType);
+  const [filterType, setFilterType] = useState<'tours' | 'rents' >(activeFilterType);
   const [selectedThemes, setSelectedThemes] = useState<string[]>([]);
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<number>(5000);
@@ -306,7 +306,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
   const vehicles = isToursLike(filterType) ? tourVehicles : rentVehicles;
   const features = isToursLike(filterType) ? tourFeatures : rentFeatures;
 
-  const switchFilterType = (type: 'tours' | 'rents' | 'ticket' | 'transfer') => {
+  const switchFilterType = (type: 'tours' | 'rents' ) => {
     setFilterType(type);
     handleReset();
   };
@@ -326,8 +326,8 @@ const FilterModal: React.FC<FilterModalProps> = ({
                 TOURS
               </button>
               <button 
-                className={`font-medium whitespace-nowrap ${filterType === 'ticket' ? 'text-orange-500 border-b-2 border-orange-500' : 'text-gray-600'}`}
-                onClick={() => switchFilterType('ticket')}
+                className={`font-medium whitespace-nowrap ${filterType === 'tours' ? 'text-orange-500 border-b-2 border-orange-500' : 'text-gray-600'}`}
+                onClick={() => switchFilterType('tours')}
               >
                 TICKET
               </button>
@@ -338,8 +338,8 @@ const FilterModal: React.FC<FilterModalProps> = ({
                 RENT
               </button>
               <button 
-                className={`font-medium whitespace-nowrap ${filterType === 'transfer' ? 'text-orange-500 border-b-2 border-orange-500' : 'text-gray-600'}`}
-                onClick={() => switchFilterType('transfer')}
+                className={`font-medium whitespace-nowrap ${filterType === 'rents' ? 'text-orange-500 border-b-2 border-orange-500' : 'text-gray-600'}`}
+                onClick={() => switchFilterType('rents')}
               >
                 TRANSFER
               </button>

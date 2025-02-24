@@ -73,7 +73,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onFiltersApply, activeFilterType
       <FilterModal 
         isOpen={isFilterOpen}
         onClose={handleFilterClose}
-        onApplyFilters={handleApplyFilters}
+        onApplyFilters={(filters, filterType) => handleApplyFilters(filters, filterType)}
+
         activeFilterType={activeFilterType}
       />
     </>

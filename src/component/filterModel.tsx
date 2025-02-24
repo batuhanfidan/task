@@ -9,7 +9,7 @@ export interface ToursFilterState {
   groupSize: number;
   vehicle: string[];
   features: string[];
-  location: string;
+  location: string;  
 }
 
 interface FilterModalProps {

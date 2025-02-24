@@ -146,7 +146,7 @@ export default function Home() {
     <main className="min-h-screen bg-orange">
       <Navbar 
         onFiltersApply={applyFilters} 
-        activeFilterType={activeFilterType} 
+        activeFilterType="tours" 
       />
       
       <div className="bg-gradient-to-r from-primary-400 to-primary-600 text-white py-16">

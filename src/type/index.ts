@@ -18,3 +18,24 @@ export interface Tour {
     vehicle: string;
     features: string[];
   }
+
+  export interface Rent {
+    id: number;
+    title: string;
+    location: string;
+    rating: number;
+    reviews: number;
+    price: number;
+    originalPrice: number;
+    discount: number;
+    imageUrl: string;
+    duration: string;
+    description: string;
+    activity: string[];
+    languages: string[];
+    theme: string;
+    startTime: string;
+    groupSize: number;
+    vehicle: string;
+    features: string[];
+}

@@ -71,11 +71,11 @@ export default function TourCard({ tour }: TourCardProps) {
           <div>
             {tour.discount && (
               <span className="text-gray-400 line-through text-sm block">
-                THB {tour.originalPrice.toLocaleString()}
+                TL {tour.originalPrice.toLocaleString()}
               </span>
             )}
             <div className="text-2xl font-bold text-primary-600">
-              THB {tour.price.toLocaleString()}
+              TL {tour.price.toLocaleString()}
             </div>
           </div>
           <button className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2.5 rounded-lg font-medium transition-colors duration-300">

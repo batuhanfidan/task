@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
 export interface ToursFilterState {
@@ -9,12 +9,16 @@ export interface ToursFilterState {
   groupSize: number;
   vehicle: string[];
   features: string[];
+  location: string;
 }
 
 interface FilterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onApplyFilters: (filters: ToursFilterState) => void;
+  onApplyFilters: (filters: ToursFilterState, filterType: 'tours' | 'rents' | 'ticket' | 'transfer') => void;
+  activeFilterType: 'tours' | 'rents' | 'ticket' | 'transfer';
+  toursData?: any[];
+  rentsData?: any[];
 }
 
 interface FilterItem {
@@ -27,7 +31,11 @@ const FilterModal: React.FC<FilterModalProps> = ({
   isOpen,
   onClose,
   onApplyFilters,
+  activeFilterType,
+  toursData = [],
+  rentsData = []
 }) => {
+  const [filterType, setFilterType] = useState<'tours' | 'rents' | 'ticket' | 'transfer'>(activeFilterType);
   const [selectedThemes, setSelectedThemes] = useState<string[]>([]);
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<number>(5000);
@@ -35,21 +43,111 @@ const FilterModal: React.FC<FilterModalProps> = ({
   const [groupSize, setGroupSize] = useState<number>(40);
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
+  const [location, setLocation] = useState<string>("");
+  const [showLocationDropdown, setShowLocationDropdown] = useState<boolean>(false);
 
-  const themes: FilterItem[] = [
-    { id: 'island tour', label: 'Island Tour', count: 3 },
-    { id: 'land', label: 'Land tour', count: 2 },
+  
+  const isToursLike = (type: string) => type === 'tours' || type === 'ticket';
+  const isRentsLike = (type: string) => type === 'rents' || type === 'transfer';
+
+  
+  const tourLocations = [
+    "Krabi Pier",
+    "Bangkok City Center",
+    "Phuket Elephant Sanctuary",
+    "Khao Lak",
+    "Phuket Marina",
+    "Rassada Pier, Phuket"
+  ];
+
+  const rentLocations = [
+    "Malé, Maldives",
+    "Palawan, Philippines",
+    "Ubud, Bali",
+    "Ari Atoll, Maldives",
+    "Cebu, Philippines",
+    "Tanah Lot, Bali"
+  ];
+
+  
+  const activeLocations = isToursLike(filterType) ? tourLocations : rentLocations;
+
+  
+  const filteredLocations = location
+    ? activeLocations.filter(loc => loc.toLowerCase().includes(location.toLowerCase()))
+    : activeLocations;
+
+  
+  useEffect(() => {
+    setFilterType(activeFilterType);
+  }, [activeFilterType]);
+
+  
+  const handleSearchFocus = () => {
+    setShowLocationDropdown(true);
+  };
+
+  
+  const handleLocationSelect = (loc: string) => {
+    setLocation(loc);
+    setShowLocationDropdown(false);
+  };
+
+  
+  const searchRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowLocationDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  
+  const generateFilterItems = (data: any[], field: string): FilterItem[] => {
+    if (!data || data.length === 0) return [];
+    
+    const countMap = new Map<string, number>();
+    
+    
+    data.forEach(item => {
+      const values = Array.isArray(item[field]) ? item[field] : [item[field]];
+      values.forEach(value => {
+        if (value) {
+          const count = countMap.get(value.toString().toLowerCase()) || 0;
+          countMap.set(value.toString().toLowerCase(), count + 1);
+        }
+      });
+    });
+    
+    
+    return Array.from(countMap.entries()).map(([id, count]) => ({
+      id: id,
+      label: id.charAt(0).toUpperCase() + id.slice(1), 
+      count
+    }));
+  };
+
+  
+  const tourThemes = toursData.length ? generateFilterItems(toursData, 'theme') : [
+    { id: 'island tour', label: 'Island Tour', count: 4 },
+    { id: 'land', label: 'Land tour', count: 1 },
     { id: 'safari', label: 'Safari', count: 1 },
   ];
 
-  const activities: FilterItem[] = [
+  const tourActivities = toursData.length ? generateFilterItems(toursData, 'activity') : [
     { id: 'swimming', label: 'Swimming', count: 4 },
     { id: 'running', label: 'Running', count: 1 },
     { id: 'elephant', label: 'Elephant care', count: 1 },
     { id: 'snorkelling', label: 'Snorkelling', count: 2 },
   ];
 
-  const vehicles: FilterItem[] = [
+  const tourVehicles = toursData.length ? generateFilterItems(toursData, 'vehicle') : [
     { id: 'yacht', label: 'Yacht', count: 0 },
     { id: 'speedboat', label: 'Speedboat', count: 2 },
     { id: 'safari', label: 'Safari', count: 2 },
@@ -57,10 +155,50 @@ const FilterModal: React.FC<FilterModalProps> = ({
     { id: 'speedcatamaran', label: 'Speedcatamaran', count: 1 },
   ];
 
-  const features: FilterItem[] = [
+  const tourFeatures = toursData.length ? generateFilterItems(toursData, 'features') : [
     { id: 'transfer', label: 'Transfer', count: 6 },
     { id: 'halal', label: 'Halal Food', count: 4 },
     { id: 'vegetarian', label: 'Vegetarian food', count: 4 },
+  ];
+
+  const rentThemes = rentsData.length ? generateFilterItems(rentsData, 'theme') : [
+    { id: 'luxury beach', label: 'Luxury Beach', count: 1 },
+    { id: 'island tour', label: 'Island Tour', count: 1 },
+    { id: 'cultural & nature', label: 'Cultural & Nature', count: 1 },
+    { id: 'adventure', label: 'Adventure', count: 1 },
+    { id: 'adventure & wildlife', label: 'Adventure & Wildlife', count: 1 },
+    { id: 'cultural & scenic', label: 'Cultural & Scenic', count: 1 },
+  ];
+
+  const rentActivities = rentsData.length ? generateFilterItems(rentsData, 'activity') : [
+    { id: 'snorkelling', label: 'Snorkelling', count: 3 },
+    { id: 'swimming', label: 'Swimming', count: 3 },
+    { id: 'sunset dinner', label: 'Sunset Dinner', count: 1 },
+    { id: 'kayaking', label: 'Kayaking', count: 1 },
+    { id: 'cultural tour', label: 'Cultural Tour', count: 1 },
+    { id: 'sightseeing', label: 'Sightseeing', count: 2 },
+    { id: 'scuba diving', label: 'Scuba Diving', count: 1 },
+    { id: 'waterfall trekking', label: 'Waterfall Trekking', count: 1 },
+    { id: 'photography', label: 'Photography', count: 1 },
+  ];
+
+  const rentVehicles = rentsData.length ? generateFilterItems(rentsData, 'vehicle') : [
+    { id: 'seaplane', label: 'Seaplane', count: 1 },
+    { id: 'speedboat', label: 'Speedboat', count: 2 },
+    { id: 'private car', label: 'Private Car', count: 2 },
+    { id: 'private van', label: 'Private Van', count: 1 },
+  ];
+
+  const rentFeatures = rentsData.length ? generateFilterItems(rentsData, 'features') : [
+    { id: 'all inclusive', label: 'All Inclusive', count: 1 },
+    { id: 'private pool', label: 'Private Pool', count: 1 },
+    { id: 'transfer', label: 'Transfer', count: 2 },
+    { id: 'buffet lunch', label: 'Buffet Lunch', count: 1 },
+    { id: 'local guide', label: 'Local Guide', count: 2 },
+    { id: 'diving equipment', label: 'Diving Equipment', count: 1 },
+    { id: 'instructor', label: 'Instructor', count: 1 },
+    { id: 'lunch', label: 'Lunch', count: 1 },
+    { id: 'entrance fees', label: 'Entrance Fees', count: 1 },
   ];
 
   const toggleItem = (item: FilterItem, selectedItems: string[], setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>) => {
@@ -146,6 +284,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
     setGroupSize(40);
     setSelectedVehicles([]);
     setSelectedFeatures([]);
+    setLocation("");
   };
 
   const handleApply = () => {
@@ -156,9 +295,21 @@ const FilterModal: React.FC<FilterModalProps> = ({
       startTime,
       groupSize,
       vehicle: selectedVehicles,
-      features: selectedFeatures
-    });
+      features: selectedFeatures,
+      location
+    }, filterType);
     onClose();
+  };
+
+  
+  const themes = isToursLike(filterType) ? tourThemes : rentThemes;
+  const activities = isToursLike(filterType) ? tourActivities : rentActivities;
+  const vehicles = isToursLike(filterType) ? tourVehicles : rentVehicles;
+  const features = isToursLike(filterType) ? tourFeatures : rentFeatures;
+
+  const switchFilterType = (type: 'tours' | 'rents' | 'ticket' | 'transfer') => {
+    setFilterType(type);
+    handleReset();
   };
 
   if (!isOpen) return null;
@@ -168,9 +319,32 @@ const FilterModal: React.FC<FilterModalProps> = ({
       <div className="bg-white w-11/12 h-[85vh] rounded-lg shadow-lg flex flex-col">
         <div className="sticky top-0 bg-white border-b z-10 rounded-t-lg">
           <div className="flex justify-between items-center p-4">
-            <div className="flex items-center gap-4">
-              <span className="font-medium text-orange-500">TOURS</span>
-              <button className="text-gray-600">Filter</button>
+            <div className="flex items-center gap-4 overflow-x-auto">
+              <button 
+                className={`font-medium whitespace-nowrap ${filterType === 'tours' ? 'text-orange-500 border-b-2 border-orange-500' : 'text-gray-600'}`}
+                onClick={() => switchFilterType('tours')}
+              >
+                TOURS
+              </button>
+              <button 
+                className={`font-medium whitespace-nowrap ${filterType === 'ticket' ? 'text-orange-500 border-b-2 border-orange-500' : 'text-gray-600'}`}
+                onClick={() => switchFilterType('ticket')}
+              >
+                TICKET
+              </button>
+              <button 
+                className={`font-medium whitespace-nowrap ${filterType === 'rents' ? 'text-orange-500 border-b-2 border-orange-500' : 'text-gray-600'}`}
+                onClick={() => switchFilterType('rents')}
+              >
+                RENT
+              </button>
+              <button 
+                className={`font-medium whitespace-nowrap ${filterType === 'transfer' ? 'text-orange-500 border-b-2 border-orange-500' : 'text-gray-600'}`}
+                onClick={() => switchFilterType('transfer')}
+              >
+                TRANSFER
+              </button>
+              <span className="text-gray-600 whitespace-nowrap">Filter</span>
             </div>
             <button onClick={onClose} className="p-2">
               <X className="h-5 w-5" />
@@ -179,12 +353,30 @@ const FilterModal: React.FC<FilterModalProps> = ({
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">
-          <div className="mb-6">
+          <div className="mb-6 relative" ref={searchRef}>
             <input
               type="text"
-              placeholder="Where you wanna visit? (Pick the island, Cruising remove...)"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              onFocus={handleSearchFocus}
+              placeholder={isToursLike(filterType) 
+                ? "Where you wanna visit? (Pick the location...)" 
+                : "Search for rentals (Location, type...)"}
               className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm"
             />
+            {showLocationDropdown && filteredLocations.length > 0 && (
+              <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                {filteredLocations.map((loc) => (
+                  <div 
+                    key={loc}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleLocationSelect(loc)}
+                  >
+                    {loc}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <FilterSection
@@ -196,7 +388,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
 
           <FilterSection
             title="Activity"
-            
             items={activities}
             selectedItems={selectedActivities}
             onToggle={(item) => toggleItem(item, selectedActivities, setSelectedActivities)}
@@ -211,7 +402,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
           />
 
           <SliderSection
-            title="Start time"
+            title={isToursLike(filterType) ? "Start time" : "Check-in time"}
             value={parseInt(startTime)}
             min={0}
             max={24}

@@ -3,10 +3,11 @@ import { useState } from 'react';
 import FilterModal, { ToursFilterState } from './filterModel';
 
 interface NavbarProps {
-  onFiltersApply: (filters: ToursFilterState) => void;
+  onFiltersApply: (filters: ToursFilterState, filterType: 'tours' | 'rents') => void;
+  activeFilterType: 'tours' | 'rents';
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onFiltersApply }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onFiltersApply, activeFilterType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const handleFilterOpen = () => {
@@ -17,8 +18,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onFiltersApply }) => {
     setIsFilterOpen(false);
   };
 
-  const handleApplyFilters = (filters: ToursFilterState) => {
-    onFiltersApply(filters);
+  const handleApplyFilters = (filters: ToursFilterState, filterType: 'tours' | 'rents') => {
+    onFiltersApply(filters, filterType);
     setIsFilterOpen(false);
   };
 
@@ -46,7 +47,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onFiltersApply }) => {
                   <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Search tours..."
+                    placeholder={activeFilterType === 'tours' ? "Search tours..." : "Search rentals..."}
                     className="pl-10 pr-4 py-2 bg-gray-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 w-64"
                   />
                 </div>
@@ -73,6 +74,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onFiltersApply }) => {
         isOpen={isFilterOpen}
         onClose={handleFilterClose}
         onApplyFilters={handleApplyFilters}
+        activeFilterType={activeFilterType}
       />
     </>
   );

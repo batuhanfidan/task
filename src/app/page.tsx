@@ -126,20 +126,21 @@ export default function Home() {
   };
 
   const applyFilters = (filters: ToursFilterState, filterType?: 'tours' | 'rents') => {
-  console.log("applyFilters Called:", filters, "Filter Type:", filterType);
-
-  if (filterType === 'tours') {
-    applyTourFilters(filters);
-    setActiveFilterType('tours'); 
-  } else if (filterType === 'rents') {
-    applyRentFilters(filters);
-    setActiveFilterType('rents'); 
-  } else {
-    setActiveFilterType('all');
-    applyTourFilters(filters);
-    applyRentFilters(filters);
-  }
-};
+    console.log("applyFilters Called:", filters, "Filter Type:", filterType);
+  
+    if (filterType === 'tours') {
+      applyTourFilters(filters);
+      setActiveFilterType('tours'); 
+    } else if (filterType === 'rents') {
+      applyRentFilters(filters);
+      setActiveFilterType('rents'); 
+    } else {
+      setActiveFilterType('all');
+      applyTourFilters(filters);
+      applyRentFilters(filters);
+    }
+  };
+  
 
   return (
     <main className="min-h-screen bg-orange">

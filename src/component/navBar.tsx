@@ -3,8 +3,8 @@ import { useState } from 'react';
 import FilterModal, { ToursFilterState } from './filterModel';
 
 interface NavbarProps {
-  onFiltersApply: (filters: ToursFilterState, filterType: 'tours' | 'rents' | 'ticket' | 'transfer') => void;
-  activeFilterType: 'tours' | 'rents' | 'ticket' | 'transfer';
+  onFiltersApply: (filters: ToursFilterState, filterType: 'tours' | 'rents') => void;
+  activeFilterType: 'tours' | 'rents';
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onFiltersApply, activeFilterType }) => {

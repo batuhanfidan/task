@@ -9,7 +9,7 @@ export interface ToursFilterState {
   groupSize: number;
   vehicle: string[];
   features: string[];
-  location: string;  
+   
 }
 
 interface FilterModalProps {
@@ -296,7 +296,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
       groupSize,
       vehicle: selectedVehicles,
       features: selectedFeatures,
-      location
     }, filterType);
     onClose();
   };

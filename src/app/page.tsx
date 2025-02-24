@@ -22,7 +22,6 @@ export default function Home() {
     groupSize: 40,
     vehicle: [],
     features: [],
-    location: [],
   });
   const [activeFilterType, setActiveFilterType] = useState<'tours' | 'rents' | 'all'>('all');
 
